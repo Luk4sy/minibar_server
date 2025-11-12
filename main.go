@@ -12,4 +12,5 @@ func main() {
 	core.InitLogrus()
 	global.DB = core.InitDB()
 
+	// 启动 web 程序
 }
