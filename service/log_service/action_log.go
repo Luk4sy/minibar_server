@@ -35,7 +35,7 @@ func (ac *ActionLog) Save() {
 		UserID:  userID,
 		IP:      ip,
 		Addr:    addr,
-	})
+	}).Error
 	if err != nil {
 		logrus.Errorf("日志创建失败 %s", err)
 		return
