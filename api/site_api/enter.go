@@ -1,6 +1,8 @@
 package site_api
 
 import (
+	"blogx_server/models/enum"
+	"blogx_server/service/log_service"
 	"fmt"
 	"github.com/gin-gonic/gin"
 )
@@ -9,8 +11,9 @@ type SiteApi struct {
 }
 
 func (SiteApi) SiteInfoView(c *gin.Context) {
-	// TODO：之后修改站点的信息
 	fmt.Println("1")
+	log_service.NewLoginSuccess(c, enum.UserPwdLoginType)
+	log_service.NewLoginFail(c, enum.UserPwdLoginType, "用户不存在", "Lukasy", "1234")
 	c.JSON(200, gin.H{"code": 0, "msg": "站点信息"})
 	return
 }
