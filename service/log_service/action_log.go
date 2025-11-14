@@ -132,6 +132,12 @@ func (ac *ActionLog) SetResponseHeader(header http.Header) {
 }
 
 func (ac *ActionLog) MiddlewareSave() {
+	_saveLog, _ := ac.c.Get("saveLog")
+	saveLog, _ := _saveLog.(bool)
+	if !saveLog {
+		return
+	}
+
 	if ac.log == nil {
 		// 创建
 		ac.isMiddleware = true
@@ -244,5 +250,6 @@ func GetLog(c *gin.Context) *ActionLog {
 	if !ok {
 		return NewActionLogByGin(c)
 	}
+	c.Set("saveLog", true)
 	return log
 }
