@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	e "github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"io"
 	"net/http"
@@ -100,6 +101,16 @@ func (ac *ActionLog) SetItemWarn(label string, value any) {
 
 func (ac *ActionLog) SetItemError(label string, value any) {
 	ac.setItem(label, value, enum.LogErrLevel)
+}
+func (ac *ActionLog) SetError(label string, err error) {
+	msg := e.WithStack(err)
+	logrus.Errorf("%s %s", label, err.Error())
+	ac.itemList = append(ac.itemList, fmt.Sprintf("<div class=\"log_error\"><div class=\"line\"><div class=\"label\">%s</div><div class=\"value\">%s</div><div class=\"type\">%T</div></div><div class=\"stack\">%+v</div></div>",
+		label,
+		err,
+		err,
+		msg,
+	))
 }
 
 func (ac *ActionLog) SetRequest(c *gin.Context) {
