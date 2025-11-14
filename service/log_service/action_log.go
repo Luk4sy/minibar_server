@@ -169,6 +169,7 @@ func (ac *ActionLog) Save() (id uint) {
 	if ac.log != nil {
 		newContent := strings.Join(ac.itemList, "\n")
 		content := ac.log.Content + "\n" + newContent
+
 		// 之前已经save过了，那就是更新
 		global.DB.Model(ac.log).Updates(map[string]any{
 			"content": content,
