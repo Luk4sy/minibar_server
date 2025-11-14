@@ -11,28 +11,32 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"io"
+	"net/http"
 	"reflect"
 	"strings"
 )
 
 type ActionLog struct {
-	c            *gin.Context
-	level        enum.LogLevelType
-	title        string
-	requestBody  []byte
-	responseBody []byte
-	log          *models.LogModel
-	showRequest  bool
-	showResponse bool
-	itemList     []string
+	c                  *gin.Context
+	level              enum.LogLevelType
+	title              string
+	requestBody        []byte
+	responseBody       []byte
+	log                *models.LogModel
+	showRequestHeader  bool
+	showResponseHeader bool
+	showRequest        bool
+	showResponse       bool
+	itemList           []string
+	responseHeader     http.Header
 }
 
 func (ac *ActionLog) ShowRequest() {
-	ac.showResponse = true
+	ac.showRequest = true
 }
 
 func (ac *ActionLog) ShowResponse() {
-	ac.showRequest = true
+	ac.showResponse = true
 }
 
 func (ac *ActionLog) SetTitle(title string) {
@@ -59,6 +63,27 @@ func (ac *ActionLog) setItem(label string, value any, levelType enum.LogLevelTyp
 		label,
 		v,
 	))
+}
+
+func (ac *ActionLog) SetLink(label string, href string) {
+	ac.itemList = append(ac.itemList, fmt.Sprintf("<div class=\"log_item link\"><div class=\"log_item_label\">%s</div><div class=\"log_item_content\"><a href=\"%s\" target=\"_blank\">%s</a></div></div>",
+		label,
+		href, href,
+	))
+}
+
+func (ac *ActionLog) SetImage(src string) {
+	ac.itemList = append(ac.itemList, fmt.Sprintf("<div class=\"log_image\"><img src=\"%s\" alt=\"\"></div>",
+		src,
+	))
+}
+
+func (ac *ActionLog) ShowRequestHeader() {
+	ac.showRequestHeader = true
+}
+
+func (ac *ActionLog) ShowResponseHeader() {
+	ac.showResponseHeader = true
 }
 
 func (ac *ActionLog) SetItem(label string, value any) {
@@ -90,6 +115,10 @@ func (ac *ActionLog) SetResponse(data []byte) {
 	ac.responseBody = data
 }
 
+func (ac *ActionLog) SetResponseHeader(header http.Header) {
+	ac.responseHeader = header
+}
+
 func (ac *ActionLog) Save() {
 
 	if ac.log != nil {
@@ -101,13 +130,30 @@ func (ac *ActionLog) Save() {
 	}
 
 	var newItemList []string
+
+	// 请求头
+	if ac.showRequestHeader {
+		byteData, _ := json.Marshal(ac.c.Request.Header)
+		newItemList = append(newItemList, fmt.Sprintf("<div class=\"log_request_header\"><pre class=\"log_json_body\">%s</pre></div>", string(byteData)))
+	}
+
 	// 设置请求
 	if ac.showRequest {
-		newItemList = append(newItemList, fmt.Sprintf("<div class=\"log_request\">\n<div class=\"log_request_head\">\n<span class=\"log_request_method delete\">%s</span>\n<span class=\"log_request_path\">/%s</span>\n</div>\n<div class=\"log_request_body\">\n<pre class=\"log_json_body\">%s</pre>\n</div>\n</div>\n", ac.c.Request.Method, ac.c.Request.URL.String(), string(ac.requestBody)))
+		newItemList = append(newItemList, fmt.Sprintf("<div class=\"log_request\">\n<div class=\"log_request_head\">\n<span class=\"log_request_method %s\">%s</span>\n<span class=\"log_request_path\">/%s</span>\n</div>\n<div class=\"log_request_body\">\n<pre class=\"log_json_body\">%s</pre>\n</div>\n</div>\n",
+			strings.ToLower(ac.c.Request.Method),
+			ac.c.Request.Method,
+			ac.c.Request.URL.String(),
+			string(ac.requestBody)))
 	}
 
 	// 中间一些content
 	newItemList = append(newItemList, ac.itemList...)
+
+	// 响应头
+	if ac.showResponseHeader {
+		byteData, _ := json.Marshal(ac.responseHeader)
+		newItemList = append(newItemList, fmt.Sprintf("<div class=\"log_response_header\"><pre class=\"log_json_body\">%s</pre></div>", string(byteData)))
+	}
 
 	// 设置响应
 	if ac.showResponse {
@@ -122,7 +168,7 @@ func (ac *ActionLog) Save() {
 	log := models.LogModel{
 		LogType: enum.ActionLogType,
 		Title:   ac.title,
-		Content: strings.Join(ac.itemList, "\n"),
+		Content: strings.Join(newItemList, "\n"),
 		Level:   ac.level,
 		UserID:  userID,
 		IP:      ip,

@@ -28,10 +28,14 @@ func (SiteApi) SiteUpdateView(c *gin.Context) {
 	log := log_service.GetLog(c)
 
 	log.ShowRequest()
+	log.ShowRequestHeader()
+	log.ShowResponseHeader()
 	log.ShowResponse()
 	log.SetTitle("更新站点")
 	log.SetItemInfo("请求时间", time.Now())
-
+	log.SetImage("/xxx/xxx")
+	log.SetLink("百度", "https://www.baidu.com")
+	c.Header("xxx", "yyy")
 	var cr SiteUpdateRequest
 	err := c.ShouldBindJSON(&cr)
 	if err != nil {
