@@ -6,6 +6,10 @@ system:
 log:
   app: blogx_server
   dir: logs
+jwt:
+  expire: 3
+  secret: xxx
+  issuer: Lukasy
 db:
   user: root
   password: 123456
