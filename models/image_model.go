@@ -12,5 +12,5 @@ type ImageModel struct {
 
 // WebPath 返回图片的 Web 访问路径
 func (i ImageModel) WebPath() string {
-	return fmt.Sprintf("/")
+	return fmt.Sprintf("/" + i.Path)
 }

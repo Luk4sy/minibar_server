@@ -3,10 +3,13 @@ package image_api
 import (
 	"blogx_server/common/res"
 	"blogx_server/global"
+	"blogx_server/models"
 	"blogx_server/utils"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
+	"io"
 	"strings"
 )
 
@@ -29,10 +32,41 @@ func (ImageApi) ImageUploadView(c *gin.Context) {
 		res.FailWithError(err, c)
 		return
 	}
+	// 文件 Hash
+	file, err := fileHeader.Open()
+	if err != nil {
+		res.FailWithError(err, c)
+		return
+	}
+	byteData, _ := io.ReadAll(file)
+	hash := utils.Md5(byteData)
+	// 判断 Hash 有没有
+	var model models.ImageModel
+	err = global.DB.Take(&model, "hash = ?", hash).Error
+	if err == nil {
+		// 找到了
+		logrus.Infof("上传图片重复 %s <==> %s  %s", filename, model.Filename, hash)
+		res.Ok(model.WebPath(), "上传成功", c)
+		return
+	}
 
-	filePath := fmt.Sprintf("uploads/images/%s", fileHeader.Filename)
+	filePath := fmt.Sprintf("uploads/images/%s", global.Config.Upload.UploadDir, fileHeader.Filename)
+
+	// 入库
+	model = models.ImageModel{
+		Filename: filename,
+		Path:     filePath,
+		Size:     fileHeader.Size,
+		Hash:     hash,
+	}
+	err = global.DB.Create(&model).Error
+	if err != nil {
+		res.FailWithError(err, c)
+		return
+	}
+
 	c.SaveUploadedFile(fileHeader, filePath)
-	res.Ok("/"+filePath, "图片上传成功", c)
+	res.Ok(model.WebPath(), "图片上传成功", c)
 }
 
 func ImageSuffixJudge(filename string) (err error) {
