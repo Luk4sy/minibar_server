@@ -2,6 +2,8 @@ package site_api
 
 import (
 	"blogx_server/common/res"
+	"blogx_server/conf"
+	"blogx_server/core"
 	"blogx_server/global"
 	"blogx_server/middleware"
 	"github.com/gin-gonic/gin"
@@ -71,13 +73,82 @@ type SiteUpdateRequest struct {
 }
 
 func (SiteApi) SiteUpdateView(c *gin.Context) {
-	var cr SiteUpdateRequest
-	err := c.ShouldBindJSON(&cr)
+	var cr SiteInfoRequest
+	err := c.ShouldBindUri(&cr)
 	if err != nil {
 		res.FailWithError(err, c)
 		return
 	}
 
-	res.OkWithMsg("更新成功", c)
+	var rep any
+	switch cr.Name {
+	case "site":
+		var data conf.Site
+		err = c.ShouldBindJSON(&data)
+		rep = data
+	case "email":
+		var data conf.Email
+		err = c.ShouldBindJSON(&data)
+		rep = data
+	case "qq":
+		var data conf.QQ
+		err = c.ShouldBindJSON(&data)
+		rep = data
+	case "qiNiu":
+		var data conf.QiNiu
+		err = c.ShouldBindJSON(&data)
+		rep = data
+	case "ai":
+		var data conf.Ai
+		err = c.ShouldBindJSON(&data)
+		rep = data
+	default:
+		res.FailWithMsg("不存在的配置", c)
+		return
+	}
+	if err != nil {
+		res.FailWithError(err, c)
+		return
+	}
+
+	switch s := rep.(type) {
+	case conf.Site:
+		// 判断站点信息更新前端文件部分
+		err = UpdateSite(s)
+		if err != nil {
+			res.FailWithError(err, c)
+			return
+		}
+		global.Config.Site = s
+	case conf.Email:
+		if s.AuthCode == "******" {
+			s.AuthCode = global.Config.Email.AuthCode
+		}
+		global.Config.Email = s
+	case conf.QQ:
+		if s.AppKey == "******" {
+			s.AppKey = global.Config.QQ.AppKey
+		}
+		global.Config.QQ = s
+	case conf.QiNiu:
+		if s.SecretKey == "******" {
+			s.SecretKey = global.Config.QiNiu.SecretKey
+		}
+		global.Config.QiNiu = s
+	case conf.Ai:
+		if s.SecretKey == "******" {
+			s.SecretKey = global.Config.Ai.SecretKey
+		}
+		global.Config.Ai = s
+	}
+
+	// 改配置文件
+	core.SetConf()
+
+	res.OkWithMsg("更新站点配置成功", c)
 	return
+}
+
+func UpdateSite(site conf.Site) error {
+	return nil
 }
