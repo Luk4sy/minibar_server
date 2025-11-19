@@ -17,6 +17,7 @@ func Run() {
 	nr.Use(middleware.LogMiddleware)
 	SiteRouter(nr) // 3️⃣ 注册具体的路由模块，站点模块
 	LogRouter(nr)  // 3️⃣ 注册具体的路由模块，日志模块
+	ImageRouter(nr)
 
 	addr := global.Config.System.Addr() // 4️⃣ 从全局配置读取服务启动地址（如 :8080）
 	r.Run(addr)                         // 5️⃣ 启动 HTTP 服务
