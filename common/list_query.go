@@ -12,6 +12,8 @@ type PageInfo struct {
 	Key   string `form:"key"`
 	Order string `form:"order"` // 前端可以覆盖
 }
+
+// Options 查询规则
 type Options struct {
 	PageInfo     PageInfo
 	Likes        []string
