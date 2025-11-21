@@ -30,15 +30,6 @@ redis:
   addr: 127.0.0.1:6379
   password: ""
   db: 2
-upload:
-  size: 3
-  whiteList:
-    - jpg
-    - jpeg
-    - png
-    - webp
-    - gif
-  uploadDir: images001
 site:
   siteInfo:
     title: 个人博客
@@ -62,7 +53,8 @@ site:
   login:
     qqLogin: false
     usernamePwdLogin: false
-    captcha: false
+    email: false
+    captcha: true
   indexRight:
     list: []
   article:
@@ -93,3 +85,12 @@ ai:
   secretKey: wqq314t8209v5g80jvoad
   nickName: Lukasy
   avatar: /xxx/xxx
+upload:
+  size: 3
+  whiteList:
+  - jpg
+  - jpeg
+  - png
+  - webp
+  - gif
+  uploadDir: images001
