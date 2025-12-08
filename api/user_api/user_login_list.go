@@ -58,7 +58,7 @@ func (UserApi) UserLoginListView(c *gin.Context) {
 		Addr:   cr.Addr,
 	}, common.Options{
 		PageInfo: cr.PageInfo,
-		Where:    querry,
+		Where:    query,
 		Preloads: preloads,
 	})
 
