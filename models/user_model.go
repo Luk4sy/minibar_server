@@ -17,6 +17,7 @@ type UserModel struct {
 	Email          string                  `gorm:"size:256" json:"email"`
 	OpenID         string                  `gorm:"size:64"  json:"openID"` // 第三方登录的唯一 id
 	Role           enum.RoleType           `json:"role"`                   //角色 1 管理员 2 普通用户 3访客
+	UserConfModel  *UserConfModel          `gorm:"foreignKey:UserID" json:"-"`
 }
 
 type UserConfModel struct {
