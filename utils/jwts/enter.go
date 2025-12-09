@@ -2,6 +2,7 @@ package jwts
 
 import (
 	"blogx_server/global"
+	"blogx_server/models"
 	"blogx_server/models/enum"
 	"errors"
 	"github.com/dgrijalva/jwt-go"
@@ -19,6 +20,11 @@ type Claims struct {
 type MyClaims struct {
 	Claims
 	jwt.StandardClaims
+}
+
+func (m MyClaims) GetUser() (user models.UserModel, err error) {
+	err = global.DB.Take(&user, m.UserID).Error
+	return
 }
 
 // get token
