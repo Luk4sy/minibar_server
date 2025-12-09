@@ -15,8 +15,8 @@ type UserLoginListRequest struct {
 	UserID    uint   `form:"userId"`
 	Ip        string `form:"ip"`
 	Addr      string `form:"addr"`
-	StartTime int64  `form:"startTime"`
-	EndTime   int64  `form:"endTime"`
+	StartTime string `form:"startTime"` // 起始时间 时分秒
+	EndTime   string `form:"endTime"`
 	Type      int8   `json:"type" form:"type" binding:"required,oneof=1 2"` // 1 用户：超看自己的内容 2 管理员可以查全部
 }
 
@@ -39,13 +39,21 @@ func (UserApi) UserLoginListView(c *gin.Context) {
 	}
 
 	var query = global.DB.Where("")
-	if cr.StartTime != 0 {
-		t := time.Unix(cr.StartTime, 0)
-		query.Where("created_at > ?", t.Format("2006-01-02 15:04:05"))
+	if cr.StartTime != "" {
+		_, err := time.Parse("2006-01-02 15:04:05", cr.StartTime)
+		if err != nil {
+			res.FailWithMsg("开始时间按格式错误", c)
+			return
+		}
+		query.Where("created_at >= ?", cr.StartTime)
 	}
-	if cr.EndTime != 0 {
-		t := time.Unix(cr.EndTime, 0)
-		query.Where("created_at < ?", t.Format("2006-01-02 15:04:05"))
+	if cr.EndTime != "" {
+		_, err := time.Parse("2006-01-02 15:04:05", cr.EndTime)
+		if err != nil {
+			res.FailWithMsg("结束时间按格式错误", c)
+			return
+		}
+		query.Where("created_at <= ?", cr.EndTime)
 	}
 	var preloads []string
 	if cr.Type == 2 {
