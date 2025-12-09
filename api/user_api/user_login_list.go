@@ -22,8 +22,8 @@ type UserLoginListRequest struct {
 
 type UserLoginListResponse struct {
 	models.UserLoginModel
-	UserNickName string `json:"userNickName"`
-	UserAvatar   string `json:"userAvatar"`
+	UserNickName string `json:"userNickName,omitempty"`
+	UserAvatar   string `json:"userAvatar,omitempty"`
 }
 
 func (UserApi) UserLoginListView(c *gin.Context) {
