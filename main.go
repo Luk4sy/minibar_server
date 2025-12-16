@@ -17,6 +17,8 @@ func main() {
 
 	flags.Run()
 
+	core.InitMysqlES()
+
 	// 启动 web 程序
 	router.Run() // 启动 HTTP 服务：r.Run(...)
 }

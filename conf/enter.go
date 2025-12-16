@@ -1,5 +1,7 @@
 package conf
 
+import "fmt"
+
 type Config struct {
 	System System `yaml:"system"`
 	Log    Log    `yaml:"log"`
@@ -13,4 +15,12 @@ type Config struct {
 	Ai     Ai     `yaml:"ai"`
 	Upload Upload `yaml:"upload"`
 	ES     ES     `yaml:"es"`
+	River  River  `yaml:"river"`
+}
+
+func (e ES) EsUrl() string {
+	if e.IsHttps {
+		return fmt.Sprintf("https://%s", e.Addr)
+	}
+	return fmt.Sprintf("http://%s", e.Addr)
 }
