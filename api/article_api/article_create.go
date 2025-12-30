@@ -43,7 +43,7 @@ func (ArticleApi) ArticleCreateView(c *gin.Context) {
 		}
 	}
 
-	// TODO:文章正文防 xss 注入
+	// 文章正文防 xss 注入
 	cr.Content = bluemonday.UGCPolicy().Sanitize(cr.Content)
 
 	// 如果清洗完发现内容没了（说明用户发的全是脚本），报错
@@ -59,6 +59,7 @@ func (ArticleApi) ArticleCreateView(c *gin.Context) {
 	}
 
 	// TODO:正文内容图片转存
+	// 1. 图片过多？同步做，接口耗时高，异步做，
 
 	var article = models.ArticleModel{
 		Title:       cr.Title,
