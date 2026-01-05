@@ -2,7 +2,6 @@ package article_api
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/microcosm-cc/bluemonday"
 	"minibar_server/common/res"
 	"minibar_server/global"
 	"minibar_server/middleware"
@@ -11,6 +10,7 @@ import (
 	"minibar_server/models/enum"
 	"minibar_server/utils/jwts"
 	"minibar_server/utils/markdown"
+	"minibar_server/utils/xss"
 )
 
 type ArticleCreateRequest struct {
@@ -44,8 +44,7 @@ func (ArticleApi) ArticleCreateView(c *gin.Context) {
 	}
 
 	// 文章正文防 xss 注入
-	cr.Content = bluemonday.UGCPolicy().Sanitize(cr.Content)
-
+	cr.Content = xss.FilterSanitize(cr.Content)
 	// 如果清洗完发现内容没了（说明用户发的全是脚本），报错
 	if cr.Content == "" {
 		res.FailWithMsg("文章内容包含非法字符或为空", c)
@@ -57,9 +56,6 @@ func (ArticleApi) ArticleCreateView(c *gin.Context) {
 		// 把 markdown 转成 html，再取文本
 		cr.Abstract = markdown.GetAbstract(cr.Content, 50)
 	}
-
-	// TODO:正文内容图片转存
-	// 1. 图片过多？同步做，接口耗时高，异步做，
 
 	var article = models.ArticleModel{
 		Title:       cr.Title,
