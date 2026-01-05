@@ -15,7 +15,7 @@ func FlagDB() {
 		&models.ArticleDiggModel{},
 		&models.CollectModel{},
 		&models.UserArticleCollectModel{},
-		&models.UserTopArticleModel{},
+		&models.UserTopArticleModel{}, // 用户文章置顶表
 		&models.ImageModel{},
 		&models.UserArticleLookHistoryModel{}, // 用户浏览文章的历史表
 		&models.CommentModel{},
