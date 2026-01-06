@@ -11,6 +11,7 @@ import (
 func ArticleRouter(r *gin.RouterGroup) {
 	app := api.App.ArticleApi
 	r.POST("article", middleware.AuthMiddleware, middleware.BindJsonMiddleware[article_api.ArticleCreateRequest], app.ArticleCreateView)
+	r.POST("article/review", middleware.AuthMiddleware, middleware.BindJsonMiddleware[article_api.ArticleReviewRequest], app.ArticleReviewView)
 	r.PUT("article", middleware.AuthMiddleware, middleware.BindJsonMiddleware[article_api.ArticleUpdateRequest], app.ArticleUpdateView)
 	r.GET("article", middleware.BindQueryMiddleware[article_api.ArticleListRequest], app.ArticleListView)
 	r.GET("article/:id", middleware.BindUriMiddleware[models.IDRequest], app.ArticleDetailView)
