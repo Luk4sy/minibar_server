@@ -32,6 +32,11 @@ func (ArticleApi) ArticleUpdateView(c *gin.Context) {
 		res.FailWithMsg("用户不存在", c)
 		return
 	}
+	if global.Config.Site.SiteInfo.Mode == 2 {
+		if user.Role != enum.AdminRole {
+			res.FailWithMsg("目前为博客模式，普通用户无法更新文章~", c)
+		}
+	}
 
 	var article models.ArticleModel
 	err = global.DB.Take(&article, cr.ID).Error
