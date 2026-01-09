@@ -7,6 +7,7 @@ import (
 	"minibar_server/middleware"
 	"minibar_server/models"
 	"minibar_server/models/enum"
+	"minibar_server/service/redis_service/redis_article"
 	"minibar_server/utils/jwts"
 )
 
@@ -35,7 +36,8 @@ func (ArticleApi) ArticleDiggView(c *gin.Context) {
 			return
 		}
 
-		// TODO: 更新到缓存当中
+		redis_article.SetDiggCache(cr.ID, true)
+
 		res.OkWithMsg("点赞成功", c)
 		return
 	}
@@ -43,5 +45,6 @@ func (ArticleApi) ArticleDiggView(c *gin.Context) {
 	// 取消点赞
 	global.DB.Model(models.ArticleDiggModel{}).Delete("user_id = ? and article_id = ?", claims.UserID, article.ID)
 	res.OkWithMsg("取消点赞成功", c)
+	redis_article.SetDiggCache(cr.ID, false)
 	return
 }

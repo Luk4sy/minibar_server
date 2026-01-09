@@ -8,6 +8,7 @@ import (
 	"minibar_server/middleware"
 	"minibar_server/models"
 	"minibar_server/models/enum"
+	"minibar_server/service/redis_service/redis_article"
 	"minibar_server/utils/jwts"
 )
 
@@ -70,6 +71,8 @@ func (ArticleApi) ArticleCollectView(c *gin.Context) {
 		}
 		res.OkWithMsg("收藏成功", c)
 
+		redis_article.SetCollectCache(cr.ArticleID, true)
+
 		// 增加收藏计数
 		global.DB.Model(&collectModel).Update("article_count", gorm.Expr("article_count + 1"))
 		return
@@ -85,6 +88,7 @@ func (ArticleApi) ArticleCollectView(c *gin.Context) {
 		res.FailWithMsg("取消收藏失败", c)
 	}
 	res.OkWithMsg("取消收藏成功", c)
-	// TODO:收藏数同步到缓存
+	redis_article.SetCollectCache(cr.ArticleID, false)
+
 	global.DB.Model(&collectModel).Update("article_count", gorm.Expr("article_count - 1"))
 }

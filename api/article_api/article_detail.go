@@ -7,6 +7,7 @@ import (
 	"minibar_server/middleware"
 	"minibar_server/models"
 	"minibar_server/models/enum"
+	"minibar_server/service/redis_service/redis_article"
 	"minibar_server/utils/jwts"
 )
 
@@ -48,7 +49,15 @@ func (ArticleApi) ArticleDetailView(c *gin.Context) {
 			}
 		}
 	}
-	// TODO:从缓存中获取浏览量和点赞数
+
+	collectCount := redis_article.GetCollectCache(article.ID)
+	lookCount := redis_article.GetLookCache(article.ID)
+	diggCount := redis_article.GetDiggCache(article.ID)
+
+	article.CollectCount = article.CollectCount + collectCount
+	article.LookCount = article.LookCount + lookCount
+	article.DiggCount = article.DiggCount + diggCount
+
 	res.OkWithData(ArticleDetailResponse{
 		ArticleModel: article,
 		Nickname:     article.UserModel.Nickname,

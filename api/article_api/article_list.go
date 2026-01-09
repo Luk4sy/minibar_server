@@ -9,6 +9,7 @@ import (
 	"minibar_server/middleware"
 	"minibar_server/models"
 	"minibar_server/models/enum"
+	"minibar_server/service/redis_service/redis_article"
 	"minibar_server/utils/jwts"
 	"minibar_server/utils/sql"
 )
@@ -111,8 +112,16 @@ func (ArticleApi) ArticleListView(c *gin.Context) {
 	fmt.Printf("%s\n", sql.ConvertSliceOrderSql(topArticleIDList))
 
 	var list = make([]ArticleListResponse, 0)
+	collectMap := redis_article.GetAllCollectCache()
+	lookMap := redis_article.GetAllLookCache()
+	diggMap := redis_article.GetAllDiggCache()
+
 	for _, model := range _list {
 		model.Content = ""
+		model.CollectCount = model.CollectCount + collectMap[model.ID]
+		model.LookCount = model.LookCount + lookMap[model.ID]
+		model.DiggCount = model.DiggCount + diggMap[model.ID]
+
 		list = append(list, ArticleListResponse{
 			ArticleModel: model,
 			UserTop:      userTopMap[model.ID],
