@@ -15,7 +15,7 @@ func (ArticleApi) ArticleDiggView(c *gin.Context) {
 
 	var article models.ArticleModel
 	err := global.DB.Take(&article, "status = ? and id = ?", enum.ArticleStatusPublished, cr.ID).Error
-	if err == nil {
+	if err != nil {
 		res.FailWithMsg("文章不存在", c)
 		return
 	}
