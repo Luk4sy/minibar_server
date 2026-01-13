@@ -5,6 +5,7 @@ import (
 	"minibar_server/flags"
 	"minibar_server/global"
 	"minibar_server/router"
+	"minibar_server/service/cron_service"
 )
 
 func main() {
@@ -19,6 +20,9 @@ func main() {
 
 	// 目前项目体量小，暂不启用
 	//core.InitMysqlES()
+
+	// 定时任务，同步数据
+	cron_service.Cron()
 
 	// 启动 web 程序
 	router.Run() // 启动 HTTP 服务：r.Run(...)
